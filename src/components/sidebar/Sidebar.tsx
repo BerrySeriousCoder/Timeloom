@@ -90,6 +90,24 @@ const Sidebar = ({ isCollapsed, toggleCollapse }: SidebarProps) => {
   }, [isAuthenticated, user?.id]);
 
   const addNewTag = async (type: 'pin' | 'priority') => {
+    // Cap the number of tags to 12
+    if (type === 'pin' && pins.length >= 12) {
+      toast({
+        title: "Limit Reached",
+        description: "You can create a maximum of 12 pin tags.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (type === 'priority' && priorities.length >= 12) {
+      toast({
+        title: "Limit Reached",
+        description: "You can create a maximum of 12 priority tags.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!newTagName.trim()) {
       toast({
         title: "Error",
@@ -251,8 +269,8 @@ const Sidebar = ({ isCollapsed, toggleCollapse }: SidebarProps) => {
             </div>
 
             {pinExpanded && (
-              <div className="mt-2 space-y-1 ml-1">
-                <div className="px-3 pb-2"> 
+              <div className="mt-2 space-y-1 ml-1 max-h-[200px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="px-3 pb-2">
                   <Input
                     type="text"
                     placeholder="Search pins..."
@@ -271,7 +289,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }: SidebarProps) => {
                   >
                     <div className="flex items-center flex-grow" onClick={() => handleTagClick('tag', pin.name)}>
                       <Tag className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                      <span className="flex-grow">{pin.name}</span> 
+                      <span className="flex-grow overflow-hidden text-ellipsis whitespace-nowrap">{pin.name}</span>
                       {pin.count > 0 && (
                         <Badge variant="outline" className="text-xs ml-auto mr-2"> 
                           {pin.count}
@@ -316,8 +334,8 @@ const Sidebar = ({ isCollapsed, toggleCollapse }: SidebarProps) => {
             </div>
 
             {priorityExpanded && (
-              <div className="mt-2 space-y-1 ml-1">
-                 <div className="px-3 pb-2"> 
+              <div className="mt-2 space-y-1 ml-1 max-h-[200px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                 <div className="px-3 pb-2">
                   <Input
                     type="text"
                     placeholder="Search priorities..."
@@ -336,7 +354,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }: SidebarProps) => {
                   >
                      <div className="flex items-center flex-grow" onClick={() => handleTagClick('priority', priority.name)}> {/* Added flex-grow and moved onClick here */}
                       <AlertCircle className="h-3.5 w-3.5 mr-2 text-gray-500" />
-                      <span className="flex-grow">{priority.name}</span> 
+                      <span className="flex-grow overflow-hidden text-ellipsis whitespace-nowrap">{priority.name}</span>
                       {priority.count > 0 && (
                         <Badge variant="outline" className="text-xs ml-auto mr-2"> 
                           {priority.count}
@@ -391,6 +409,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }: SidebarProps) => {
                 onChange={(e) => setNewTagName(e.target.value)}
                 className="col-span-3"
                 onKeyDown={(e) => e.key === 'Enter' && addNewTag('pin')}
+                maxLength={20}
               />
             </div>
             <div className="grid gap-2">
@@ -440,6 +459,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }: SidebarProps) => {
                 onChange={(e) => setNewTagName(e.target.value)}
                 className="col-span-3"
                 onKeyDown={(e) => e.key === 'Enter' && addNewTag('priority')}
+                maxLength={20}
               />
             </div>
             <div className="grid gap-2">

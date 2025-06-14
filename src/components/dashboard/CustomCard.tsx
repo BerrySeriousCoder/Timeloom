@@ -11,15 +11,11 @@ import { useToast } from '@/components/ui/use-toast';
 import { Trash2, Edit, Tag, Loader2, Mail, Calendar, List } from 'lucide-react'; 
 import { fetchTags } from '@/lib/supabaseClient';
 import { useAuth } from '@/components/providers/AuthProvider';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch'; 
+import { Switch } from '@/components/ui/switch';
+import ScrollableDropdown from '@/components/ui/ScrollableDropdown'; // Import the new component
+// Removed DropdownMenu, DropdownMenuContent, DropdownMenuTrigger imports
 import {
   Accordion,
   AccordionContent,
@@ -253,37 +249,41 @@ const CustomCardComponent: React.FC<CustomCardProps> = ({ card, onUpdate, onDele
                   {/* Tag Selection Dropdown */}
                   <div className="space-y-2">
                      <Label>Tags</Label>
-                     <DropdownMenu>
-                       <DropdownMenuTrigger asChild>
-                         <Button variant="outline" className="w-full justify-start text-left font-normal">
+                     <ScrollableDropdown // Use the new component
+                       trigger={
+                         <Button type="button" variant="outline" className="w-full justify-start text-left font-normal"> {/* Added type="button" */}
                            <Tag className="mr-2 h-4 w-4" />
                            {editTagIds.length > 0
                              ? `${editTagIds.length} tag(s) selected`
                              : "Select tags"}
                          </Button>
-                       </DropdownMenuTrigger>
-                       <DropdownMenuContent className="w-56" align="start">
-                          {isLoadingTags ? (
-                              <DropdownMenuItem disabled>Loading tags...</DropdownMenuItem>
-                          ) : availableTags.length === 0 ? (
-                              <DropdownMenuItem disabled>No tags available</DropdownMenuItem>
-                          ) : (
-                              availableTags.map(tag => (
-                                  <DropdownMenuItem key={tag.id} onSelect={(e) => e.preventDefault()} className="p-0">
-                                      <label htmlFor={`edit-tag-${tag.id}`} className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer">
-                                          <span>{tag.name} ({tag.type})</span>
-                                          <Checkbox
-                                              id={`edit-tag-${tag.id}`}
-                                              checked={editTagIds.includes(tag.id)}
-                                              onCheckedChange={(checked) => handleEditTagSelectionChange(tag.id, checked)}
-                                              className="ml-2"
-                                          />
-                                      </label>
-                                  </DropdownMenuItem>
-                              ))
-                          )}
-                       </DropdownMenuContent>
-                     </DropdownMenu>
+                       }
+                       contentClassName="w-56" // Pass className for content
+                       align="start" // Pass align prop
+                     >
+                        {isLoadingTags ? (
+                            // Replaced DropdownMenuItem with a div
+                            <div className="px-2 py-1.5 text-sm opacity-50">Loading tags...</div>
+                        ) : availableTags.length === 0 ? (
+                            // Replaced DropdownMenuItem with a div
+                            <div className="px-2 py-1.5 text-sm opacity-50">No tags available</div>
+                        ) : (
+                            availableTags.map(tag => (
+                                // Replaced DropdownMenuItem with a div
+                                <div key={tag.id} className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-sm">
+                                    <label htmlFor={`edit-tag-${tag.id}`} className="flex items-center justify-between w-full cursor-pointer">
+                                        <span>{tag.name} ({tag.type})</span>
+                                        <Checkbox
+                                            id={`edit-tag-${tag.id}`}
+                                            checked={editTagIds.includes(tag.id)}
+                                            onCheckedChange={(checked) => handleEditTagSelectionChange(tag.id, checked)}
+                                            className="ml-2"
+                                        />
+                                    </label>
+                                </div>
+                            ))
+                        )}
+                     </ScrollableDropdown> {/* Closed ScrollableDropdown */}
                   </div>
                </div>
                <DialogFooter>
@@ -497,8 +497,8 @@ const CustomCardComponent: React.FC<CustomCardProps> = ({ card, onUpdate, onDele
                <Badge
                  key={tag.id}
                  variant="secondary"
-                 className=" font-semibold text-sm px-1.5 py-0.5"
-                 style={{ backgroundColor: tag.color, color: getContrastColor(tag.color) }}
+                 className=" font-semibold text-sm px-1.5 py-0.5 text-black"
+                 style={{ backgroundColor: tag.color }}
                >
                  {tag.name}
                </Badge>

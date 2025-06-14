@@ -7,6 +7,8 @@ const getCalendarAccessToken = async (): Promise<string | null> => {
     console.error('Error getting Supabase session:', sessionError);
     return null;
   }
+  // Log session data to inspect provider_token presence
+  console.log('getCalendarAccessToken: Supabase session data:', session);
   // Ensure the provider_token exists and potentially check if calendar scopes were granted
   if (!session?.provider_token) {
     console.error('No provider_token found in session. User might need to re-authenticate with Calendar scope.');
@@ -173,6 +175,10 @@ export const createCalendarEvent = async (
 
   const url = `${GOOGLE_CALENDAR_API_URL}/calendars/${encodeURIComponent(calendarId)}/events`;
 
+  // Log accessToken presence before the fetch call
+  console.log(`createCalendarEvent: Using access token: ${accessToken ? 'Present' : 'Missing'}`);
+  console.log('createCalendarEvent: Event data:', eventData);
+
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -184,11 +190,12 @@ export const createCalendarEvent = async (
     });
 
     if (!response.ok) {
+       // Log the specific status and error body on failure
+       const errorBody = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+       console.error(`Failed to create calendar event: Status=${response.status}`, errorBody);
        if (response.status === 401 || response.status === 403) {
         throw new Error('Google API token expired');
       }
-      const errorBody = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
-      console.error(`Failed to create calendar event: ${response.status}`, errorBody);
       throw new Error(`Failed to create event: ${errorBody?.error?.message || response.statusText}`);
     }
 
@@ -218,9 +225,13 @@ export const updateCalendarEvent = async (
 
   const url = `${GOOGLE_CALENDAR_API_URL}/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
 
+  // Log accessToken presence before the fetch call
+  console.log(`updateCalendarEvent: Using access token: ${accessToken ? 'Present' : 'Missing'}`);
+  console.log('updateCalendarEvent: Event ID:', eventId, 'Event data:', eventData);
+
   try {
     const response = await fetch(url, {
-      method: 'PUT', 
+      method: 'PUT',
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
@@ -229,11 +240,12 @@ export const updateCalendarEvent = async (
     });
 
     if (!response.ok) {
+       // Log the specific status and error body on failure
+       const errorBody = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+       console.error(`Failed to update calendar event ${eventId}: Status=${response.status}`, errorBody);
        if (response.status === 401 || response.status === 403) {
         throw new Error('Google API token expired');
       }
-      const errorBody = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
-      console.error(`Failed to update calendar event ${eventId}: ${response.status}`, errorBody);
       throw new Error(`Failed to update event: ${errorBody?.error?.message || response.statusText}`);
     }
 

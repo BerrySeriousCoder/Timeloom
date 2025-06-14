@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader2, Tag, Send, Paperclip, ChevronDown, ChevronUp } from 'lucide-react';
@@ -38,7 +39,7 @@ const EmailView = () => {
   const [replyBody, setReplyBody] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<Set<string>>(new Set());
   const { toast } = useToast();
-  const [availableTags, setAvailableTags] = useState<{ id: string; name: string; type: string }[]>([]);
+  const [availableTags, setAvailableTags] = useState<{ id: string; name: string; type: string; color: string }[]>([]);
   const [emailTagIds, setEmailTagIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -168,7 +169,8 @@ const EmailView = () => {
   // WARNING: Rendering raw HTML without sanitization is a security risk (XSS). //TODO add sanatization
   const createSanitizedMarkup = (htmlString: string | undefined) => {
     if (!htmlString) return { __html: '' };
-    return { __html: htmlString };
+    const sanitizedHtml = DOMPurify.sanitize(htmlString);
+    return { __html: sanitizedHtml };
   };
 
   if (isLoading) {
@@ -198,14 +200,20 @@ const EmailView = () => {
               <Tag className="mr-2 h-4 w-4" /> Tags ({emailTagIds.length})
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="max-h-60 overflow-y-auto">
             {availableTags.length === 0 ? (
               <DropdownMenuItem disabled>No tags available</DropdownMenuItem>
             ) : (
               availableTags.map(tag => (
                 <DropdownMenuItem key={tag.id} className="flex justify-between" onSelect={(e) => e.preventDefault()}> {/* Prevent closing on select */}
                   <label htmlFor={`tag-${tag.id}`} className="flex items-center justify-between w-full p-0 cursor-pointer"> {/* Added cursor-pointer */}
-                    <span>{tag.name} ({tag.type})</span>
+                    <span className="flex items-center">
+                      <span
+                        className="inline-block w-3 h-3 mr-2 rounded-full"
+                        style={{ backgroundColor: tag.color }}
+                      ></span>
+                      {tag.name} ({tag.type})
+                    </span>
                     <Checkbox
                       id={`tag-${tag.id}`}
                       checked={emailTagIds.includes(tag.id)}

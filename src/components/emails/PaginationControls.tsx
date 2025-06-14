@@ -17,7 +17,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   onNextPage,
 }) => {
   return (
-    <div className="flex-shrink-0 flex justify-center items-center space-x-4 py-3 border-t bg-gray-50">
+    <div className="flex-shrink-0 flex justify-center items-center space-x-4 py-3 border-t bg-gray-50 dark:bg-gray-950">
       <Button
         variant="outline"
         size="sm"

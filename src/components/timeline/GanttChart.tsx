@@ -365,7 +365,7 @@ const GanttChart: React.FC<GanttChartProps> = ({ cards, isLoading }) => {
                                                     (view === "weekly" || view === "monthly") &&
                                                         isSameDay(date, new Date()) &&
                                                         (darkMode ? "bg-gray-600 text-white" : "font-bold"),
-                                                    view === "yearly" && isSameMonth(date, new Date()) && (darkMode ? "bg-gray-600 text-white" : "bg-purple-50 font-bold")
+                                                    view === "yearly" && isSameMonth(date, new Date()) && (darkMode ? "bg-gray-700 text-white" : "bg-purple-50 font-bold") // Changed bg-gray-600 to bg-gray-700 for dark mode
                                                 )}
                                             >
                                                 {view === "weekly" && (
@@ -395,13 +395,13 @@ const GanttChart: React.FC<GanttChartProps> = ({ cards, isLoading }) => {
                                                 onClick={() => handleCardClick(card)}
                                                 title="Click for details"
                                             >
-                                                <div className="flex-shrink min-w-0 text-[13px] truncate mr-2">{card.title}</div>
+                                                <div className="flex-shrink min-w-0 text-[13px] truncate mr-2 text-black">{card.title}</div>
                                                 {card.tags && card.tags.length > 0 && (
                                                     <div className="flex-shrink-0 flex gap-1 items-center">
                                                         {card.tags.slice(0, 3).map((tag) => (
                                                             <span
                                                                 key={tag.id}
-                                                                className="inline-block px-1.5  py-0.5 rounded-sm text-[13px] whitespace-nowrap"
+                                                                className="inline-block px-1.5  py-0.5 rounded-sm text-[13px] whitespace-nowrap text-black"
                                                                 style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
                                                             >
                                                                 {tag.name}
@@ -449,7 +449,7 @@ const GanttChart: React.FC<GanttChartProps> = ({ cards, isLoading }) => {
                                         <Badge
                                             key={tag.id}
                                             className="text-xs px-2 py-1"
-                                            style={{ backgroundColor: tag.color, color: "white" }}
+                                            style={{ backgroundColor: tag.color, color: "black" }}
                                         >
                                             {tag.name}
                                         </Badge>

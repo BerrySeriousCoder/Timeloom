@@ -302,9 +302,9 @@ const TimelinePage = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="font-semibold text-lg">{card.title}</h2>
-                    <p className={cn("text-sm", darkMode ? "text-gray-400" : "text-gray-200")}>{formatTimelineDateRange(card.start_date, card.end_date)}</p>
+                    <p className={cn("text-sm", darkMode ? "text-gray-400" : "text-black")}>{formatTimelineDateRange(card.start_date, card.end_date)}</p>
                     {card.description && (
-                      <p className={cn("mt-2", darkMode ? "text-gray-300" : "text-gray-300")}>{card.description}</p>
+                      <p className={cn("mt-2", darkMode ? "text-gray-300" : "text-black")}>{card.description}</p>
                     )}
                   </div>
                   <div className="flex space-x-2">
@@ -319,7 +319,7 @@ const TimelinePage = () => {
           
                 <div className="mt-2 flex flex-wrap gap-2">
                   {card.tags.map((tag) => (
-                    <Badge key={tag.id} style={{ backgroundColor: tag.color }}>
+                    <Badge key={tag.id} className="text-black" style={{ backgroundColor: tag.color }}>
                       {tag.name}
                     </Badge>
                   ))}

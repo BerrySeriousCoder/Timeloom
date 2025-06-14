@@ -6,17 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { createCard, CustomCard, CardTag } from '@/lib/cardApi'; 
-import { fetchTags } from '@/lib/supabaseClient'; 
+import { createCard, CustomCard, CardTag } from '@/lib/cardApi';
+import { fetchTags } from '@/lib/supabaseClient';
 import { useAuth } from '@/components/providers/AuthProvider';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'; 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tag } from 'lucide-react'; 
+import { Tag } from 'lucide-react';
+import ScrollableDropdown from '@/components/ui/ScrollableDropdown'; // Import the new component
+// Removed DropdownMenuItem import as it's no longer used
 
 interface AddCardDialogProps {
   children: React.ReactNode;
@@ -140,37 +136,39 @@ const AddCardDialog = ({ children, onCardAdded }: AddCardDialogProps) => { // De
             {/* Tag Selection Dropdown */}
             <div className="space-y-2">
                <Label>Tags (Optional)</Label>
-               <DropdownMenu>
-                 <DropdownMenuTrigger asChild>
-                   <Button variant="outline" className="w-full justify-start text-left font-normal">
+               <ScrollableDropdown // Use the new component
+                 trigger={
+                   <Button type="button" variant="outline" className="w-full justify-start text-left font-normal"> {/* Added type="button" */}
                      <Tag className="mr-2 h-4 w-4" />
                      {selectedTagIds.length > 0
                        ? `${selectedTagIds.length} tag(s) selected`
                        : "Select tags"}
                    </Button>
-                 </DropdownMenuTrigger>
-                 <DropdownMenuContent className="w-56" align="start">
-                    {isLoadingTags ? (
-                        <DropdownMenuItem disabled>Loading tags...</DropdownMenuItem>
-                    ) : availableTags.length === 0 ? (
-                        <DropdownMenuItem disabled>No tags available</DropdownMenuItem>
-                    ) : (
-                        availableTags.map(tag => (
-                            <DropdownMenuItem key={tag.id} onSelect={(e) => e.preventDefault()} className="p-0">
-                                <label htmlFor={`add-tag-${tag.id}`} className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer"> {/* Changed id prefix */}
-                                    <span>{tag.name} ({tag.type})</span>
-                                    <Checkbox
-                                        id={`add-tag-${tag.id}`} // Changed id prefix
-                                        checked={selectedTagIds.includes(tag.id)}
-                                        onCheckedChange={(checked) => handleTagSelectionChange(tag.id, checked)}
-                                        className="ml-2"
-                                    />
-                                </label>
-                            </DropdownMenuItem>
-                        ))
-                    )}
-                 </DropdownMenuContent>
-               </DropdownMenu>
+                 }
+                 contentClassName="w-56" // Pass className for content
+                 align="start" // Pass align prop
+               >
+                  {isLoadingTags ? (
+                      <div className="px-2 py-1.5 text-sm opacity-50">Loading tags...</div>
+                  ) : availableTags.length === 0 ? (
+                      <div className="px-2 py-1.5 text-sm opacity-50">No tags available</div>
+                  ) : (
+                      availableTags.map(tag => (
+                          // Replaced DropdownMenuItem with a div
+                          <div key={tag.id} className="flex items-center justify-between w-full px-2 py-1.5 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-sm">
+                              <label htmlFor={`add-tag-${tag.id}`} className="flex items-center justify-between w-full cursor-pointer"> {/* Changed id prefix */}
+                                  <span>{tag.name} ({tag.type})</span>
+                                  <Checkbox
+                                      id={`add-tag-${tag.id}`} // Changed id prefix
+                                      checked={selectedTagIds.includes(tag.id)}
+                                      onCheckedChange={(checked) => handleTagSelectionChange(tag.id, checked)}
+                                      className="ml-2"
+                                  />
+                              </label>
+                          </div>
+                      ))
+                  )}
+               </ScrollableDropdown> {/* Closed ScrollableDropdown */}
             </div>
          <div className="flex justify-end">
            <Button type="submit" className="bg-purple hover:bg-purple-dark" disabled={isLoading}>
