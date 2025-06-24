@@ -21,8 +21,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {/* Standard Flexbox layout */}

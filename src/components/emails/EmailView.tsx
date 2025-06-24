@@ -166,11 +166,41 @@ const EmailView = () => {
     });
   };
 
-  // WARNING: Rendering raw HTML without sanitization is a security risk (XSS). //TODO add sanatization
   const createSanitizedMarkup = (htmlString: string | undefined) => {
     if (!htmlString) return { __html: '' };
-    const sanitizedHtml = DOMPurify.sanitize(htmlString);
-    return { __html: sanitizedHtml };
+
+    let sanitizedHtml = DOMPurify.sanitize(htmlString, {
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'style'],
+    });
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(sanitizedHtml, 'text/html');
+
+    const elements = doc.body.querySelectorAll('*');
+    elements.forEach((el) => {
+      const style = el.getAttribute('style');
+      if (style) {
+        let cleanedStyle = style;
+
+        // Remove various black color formats (black, #000, #000000, rgb(0,0,0), rgba(0,0,0,1))
+        cleanedStyle = cleanedStyle.replace(/color\s*:\s*(black|#000000|#000|rgb\(0\s*,\s*0\s*,\s*0\s*\)|rgba\(0\s*,\s*0\s*,\s*0\s*,\s*1\s*\))\s*;?/gi, '');
+
+        // Remove background and background-color
+        cleanedStyle = cleanedStyle.replace(/background(?:-color)?\s*:\s*[^;]+;?/gi, '');
+
+        // Optionally, remove font-family or size that break consistency
+        // cleanedStyle = cleanedStyle.replace(/font-family\s*:\s*[^;]+;?/gi, '');
+
+        // If cleanedStyle is empty after cleaning, remove style attribute
+        if (cleanedStyle.trim() === '') {
+          el.removeAttribute('style');
+        } else {
+          el.setAttribute('style', cleanedStyle);
+        }
+      }
+    });
+
+    return { __html: doc.body.innerHTML };
   };
 
   if (isLoading) {
@@ -241,6 +271,7 @@ const EmailView = () => {
 
           const bodyPart = findBestBodyPart(message.payload);
           const bodyContent = bodyPart ? decodeBase64Body(bodyPart.body.data) : '';
+          console.log("Email body content:", bodyContent); // Add this line to inspect content
 
           const attachments = message.payload.parts?.filter(part => part.filename && part.body.attachmentId) ?? [];
 
@@ -278,17 +309,18 @@ const EmailView = () => {
 
               {/* Message Body & Attachments (Conditional Render) */}
               {isExpanded && (
-                <div className="p-4 border-t">
+                <div className="p-4 border-t dark:text-foreground"> {/* Added dark:text-foreground here */}
                    <div className="text-xs text-muted-foreground mb-3">
                      <div><span className="font-medium text-foreground">From:</span> {fromInfo}</div>
                      <div><span className="font-medium text-foreground">To:</span> {toInfo}</div>
                      {ccInfo && <div><span className="font-medium text-foreground">Cc:</span> {ccInfo}</div>}
                      <div><span className="font-medium text-foreground">Date:</span> {dateObj.toLocaleString()}</div>
                    </div>
-                  <div
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={createSanitizedMarkup(bodyContent)}
-                  />
+                  <div className="max-w-none email-body-content"> {/* Added wrapper div */}
+                    <div
+                      dangerouslySetInnerHTML={createSanitizedMarkup(bodyContent)}
+                    />
+                  </div> {/* Closed wrapper div */}
                   {attachments.length > 0 && (
                     <div className="mt-4 border-t pt-3">
                       <span className="text-sm font-semibold text-foreground">Attachments:</span>
